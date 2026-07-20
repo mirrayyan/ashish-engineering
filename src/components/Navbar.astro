@@ -1,0 +1,49 @@
+---
+---
+
+<header class="fixed inset-x-0 top-0 z-50 px-6 py-5 md:px-8">
+	<nav class="flex items-center justify-between gap-4">
+		<!-- Left pill: logo + links (dark liquid glass) -->
+		<div class="flex flex-1 items-center gap-6 rounded-full border border-white/10 bg-black/40 px-6 py-3 shadow-lg backdrop-blur-xl md:flex-none">
+			<a href="#" class="flex items-center gap-2 pr-2">
+				<img src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-6 w-6" />
+				<span class="text-sm font-bold tracking-tight text-white">ASHISH ENGINEERING WORKS</span>
+			</a>
+			<ul class="hidden items-center gap-6 text-sm text-white/80 md:flex">
+				<li><a href="#" class="transition-colors hover:text-white">Home</a></li>
+				<li>
+					<a href="#" class="flex items-center gap-1 transition-colors hover:text-white">
+						Products
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5">
+							<path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</a>
+				</li>
+				<li><a href="#" class="transition-colors hover:text-white">Applications</a></li>
+				<li><a href="#" class="transition-colors hover:text-white">Contact Us</a></li>
+			</ul>
+		</div>
+
+		<!-- Right: Get a quote + hamburger (mobile) -->
+		<div class="flex items-center gap-3">
+			<a
+				href="#"
+				data-quote-open
+				class="hidden h-12 items-center justify-center gap-2 rounded-full bg-white/95 px-6 text-sm font-semibold text-black shadow-sm backdrop-blur-sm transition hover:bg-white md:flex"
+			>
+				Get a Quote
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+					<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+			</a>
+			<button
+				aria-label="Menu"
+				class="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-black shadow-sm backdrop-blur-sm transition hover:bg-white md:hidden"
+			>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+					<path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+				</svg>
+			</button>
+		</div>
+	</nav>
+</header>

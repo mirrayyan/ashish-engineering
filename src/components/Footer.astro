@@ -1,0 +1,87 @@
+---
+const productLinks = ['Chinese Gas Range', 'Dosa Bhatti', 'Work Table with Sink', 'Bain Marie'];
+const companyLinks = ['Home', 'Products', 'Applications', 'Contact Us'];
+const year = new Date().getFullYear();
+---
+
+<footer class="relative overflow-hidden bg-black px-6 pt-20 pb-10 text-white md:px-12 md:pt-28">
+	<!-- Ambient glow -->
+	<div
+		aria-hidden="true"
+		class="pointer-events-none absolute -top-40 left-1/2 h-96 w-[80%] -translate-x-1/2 rounded-full bg-white/5 blur-3xl"
+	>
+	</div>
+
+	<!-- Big CTA -->
+	<div class="relative flex flex-col items-start justify-between gap-8 border-b border-white/10 pb-16 md:flex-row md:items-end">
+		<h2 class="max-w-2xl text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl">
+			Let's build<br />something precise.
+		</h2>
+		<a
+			href="#"
+			data-quote-open
+			class="flex h-14 items-center justify-center gap-2 rounded-full bg-white/95 px-8 text-base font-semibold text-black transition hover:bg-white"
+		>
+			Get a Quote
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+				<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</a>
+	</div>
+
+	<!-- Link grid -->
+	<div class="relative grid grid-cols-2 gap-10 py-16 md:grid-cols-4">
+		<div class="col-span-2 flex flex-col items-start gap-4 md:col-span-1">
+			<a href="#" class="flex items-center gap-2">
+				<img src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-7 w-7" />
+				<span class="text-sm font-bold tracking-tight">ASHISH ENGINEERING WORKS</span>
+			</a>
+			<p class="max-w-xs text-sm leading-relaxed text-white/50">
+				Precision steel fabrication and industrial kitchen equipment, built to last.
+			</p>
+		</div>
+
+		<div>
+			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Products</h3>
+			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
+				{productLinks.map((link) => (
+					<li><a href="#" class="transition-colors hover:text-white">{link}</a></li>
+				))}
+			</ul>
+		</div>
+
+		<div>
+			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Company</h3>
+			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
+				{companyLinks.map((link) => (
+					<li><a href="#" class="transition-colors hover:text-white">{link}</a></li>
+				))}
+			</ul>
+		</div>
+
+		<div>
+			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Contact</h3>
+			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
+				<li><a href="mailto:hello@ashishengineering.com" class="transition-colors hover:text-white">hello@ashishengineering.com</a></li>
+				<li><a href="tel:+910000000000" class="transition-colors hover:text-white">+91 00000 00000</a></li>
+				<li class="text-white/50">Mumbai, India</li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- Bottom bar -->
+	<div class="relative flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-white/40 md:flex-row">
+		<p>© {year} Ashish Engineering Works. All rights reserved.</p>
+		<div class="flex items-center gap-6">
+			<a href="#" class="transition-colors hover:text-white">Privacy</a>
+			<a href="#" class="transition-colors hover:text-white">Terms</a>
+		</div>
+	</div>
+
+	<!-- Oversized brand watermark -->
+	<div aria-hidden="true" class="pointer-events-none relative mt-8 select-none overflow-hidden">
+		<span class="block whitespace-nowrap text-[22vw] font-semibold leading-[0.8] tracking-tighter text-white/[0.04]">
+			ASHISH
+		</span>
+	</div>
+</footer>
