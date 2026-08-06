@@ -1,0 +1,190 @@
+---
+import '../../styles/global.css';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import QuoteForm from '../../components/QuoteForm.astro';
+import { products } from '../../data/products.js';
+
+export function getStaticPaths() {
+	return products.map((product) => ({
+		params: { slug: product.slug },
+		props: { product },
+	}));
+}
+
+const { product } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/AEW-SVG.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={`${product.description} — ${product.longDescription}`} />
+		<meta name="theme-color" content="#ffffff" />
+		<meta property="og:title" content={`${product.title} — Ashish Engineering Works`} />
+		<meta property="og:description" content={product.description} />
+		<meta property="og:type" content="product" />
+		<meta property="og:image" content={product.images[0]} />
+		<title>{product.title} — Ashish Engineering Works</title>
+	</head>
+	<body class="bg-white">
+		<Navbar theme="light" />
+
+		<main class="px-6 pb-8 pt-24 sm:pb-12 sm:pt-28 md:px-12 md:py-24">
+			<a
+				href="/#products"
+				class="inline-flex items-center gap-2 text-sm font-medium text-neutral-400 transition hover:text-neutral-900"
+			>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+					<path d="M19 12H5M11 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+				Back to Products
+			</a>
+
+			<div class="mt-4 grid gap-x-12 gap-y-3 sm:mt-6 sm:gap-y-4 lg:mt-10 lg:gap-x-16 lg:gap-y-0 lg:grid-cols-[440px_1fr]">
+				<!-- Gallery: leads on mobile, like a typical ecom product page -->
+				<div class="order-1 flex flex-col lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2">
+					<div class="flex h-60 items-center justify-center overflow-hidden rounded-2xl bg-[#f4f4f4] p-4 sm:h-80 sm:p-8 lg:h-auto lg:min-h-0 lg:flex-1">
+						<img
+							data-gallery-main
+							src={product.images[0]}
+							alt={product.title}
+							class="max-h-full max-w-full object-contain mix-blend-multiply"
+						/>
+					</div>
+
+					<div class="mt-2 flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-4 sm:overflow-visible sm:pb-0">
+						{
+							product.images.map((image, i) => (
+								<button
+									type="button"
+									data-gallery-thumb
+									data-src={image}
+									aria-label={`Show image ${i + 1} of ${product.title}`}
+									class:list={[
+										'flex aspect-square h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 bg-[#f4f4f4] p-2 transition sm:h-auto sm:w-auto',
+										i === 0 ? 'border-neutral-900' : 'border-transparent hover:border-neutral-300',
+									]}
+								>
+									<img
+										src={image}
+										alt={`${product.title} thumbnail ${i + 1}`}
+										class="max-h-full max-w-full object-contain mix-blend-multiply"
+									/>
+								</button>
+							))
+						}
+					</div>
+
+					<div class="relative mt-3 h-[3px] w-full rounded-full bg-neutral-200">
+						<div
+							data-gallery-scrollbar
+							class="absolute left-0 top-0 h-full rounded-full bg-neutral-900 transition-all"
+							style={`width: ${100 / Math.max(product.images.length, 4)}%;`}
+						/>
+					</div>
+				</div>
+
+				<!-- Name: right below the gallery on mobile, so it lands in the first glance -->
+				<h1 class="order-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-4xl md:text-5xl lg:order-none lg:col-start-1 lg:row-start-1 lg:text-6xl">
+					{product.title}
+				</h1>
+
+				<!-- Rest of the details: name, then price, then everything else -->
+				<div class="order-3 flex flex-col lg:order-none lg:col-start-1 lg:row-start-2">
+					<p class="text-xs tracking-wide text-neutral-400">{product.sku}</p>
+					<p class="mt-1 text-2xl font-bold text-neutral-900 sm:mt-4 sm:text-4xl">{product.price}</p>
+
+					<p class="mt-6 text-sm uppercase leading-relaxed tracking-wide text-neutral-500">
+						{product.longDescription}
+					</p>
+
+					<dl class="mt-10 grid grid-cols-[110px_1fr] gap-x-6 gap-y-5 text-sm uppercase tracking-wide">
+						{
+							product.specs.map((spec) => (
+								<>
+									<dt class="text-neutral-400">{spec.label}:</dt>
+									<dd class="text-neutral-700">{spec.value}</dd>
+								</>
+							))
+						}
+					</dl>
+
+					<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+						<div class="flex h-12 w-fit items-center rounded-full border border-neutral-300">
+							<button
+								type="button"
+								data-qty-decrease
+								aria-label="Decrease quantity"
+								class="flex h-12 w-12 items-center justify-center text-lg text-neutral-700 transition hover:text-neutral-900"
+							>
+								−
+							</button>
+							<span data-qty-value class="w-6 text-center text-base font-medium text-neutral-900">1</span>
+							<button
+								type="button"
+								data-qty-increase
+								aria-label="Increase quantity"
+								class="flex h-12 w-12 items-center justify-center text-lg text-neutral-700 transition hover:text-neutral-900"
+							>
+								+
+							</button>
+						</div>
+
+						<a
+							href="#"
+							data-quote-open
+							data-quote-product={product.title}
+							class="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 text-sm font-semibold text-white transition hover:bg-neutral-800"
+						>
+							Get a Quote {product.price}
+						</a>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<Footer />
+		<QuoteForm />
+
+		<script>
+			const mainImage = document.querySelector<HTMLImageElement>('[data-gallery-main]');
+			const thumbs = document.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]');
+			const scrollbar = document.querySelector<HTMLElement>('[data-gallery-scrollbar]');
+			const thumbWidth = 100 / Math.max(thumbs.length, 4);
+
+			thumbs.forEach((thumb, i) => {
+				thumb.addEventListener('click', () => {
+					if (mainImage && thumb.dataset.src) mainImage.src = thumb.dataset.src;
+
+					thumbs.forEach((t) => {
+						const active = t === thumb;
+						t.classList.toggle('border-neutral-900', active);
+						t.classList.toggle('border-transparent', !active);
+					});
+
+					if (scrollbar) {
+						const track = 100 - thumbWidth;
+						const position = thumbs.length > 1 ? (i / (thumbs.length - 1)) * track : 0;
+						scrollbar.style.left = `${position}%`;
+					}
+				});
+			});
+
+			const qtyValue = document.querySelector<HTMLElement>('[data-qty-value]');
+			let qty = 1;
+
+			document.querySelector('[data-qty-decrease]')?.addEventListener('click', () => {
+				qty = Math.max(1, qty - 1);
+				if (qtyValue) qtyValue.textContent = String(qty);
+			});
+
+			document.querySelector('[data-qty-increase]')?.addEventListener('click', () => {
+				qty += 1;
+				if (qtyValue) qtyValue.textContent = String(qty);
+			});
+		</script>
+	</body>
+</html>

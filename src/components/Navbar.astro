@@ -1,49 +1,370 @@
 ---
+interface Props {
+	/** Theme to render on first paint, before scroll-based detection kicks in. */
+	theme?: 'dark' | 'light';
+}
+
+const { theme = 'dark' } = Astro.props;
+
+const navLinks = [
+	{ label: 'Home', href: '/#top', section: 'home' },
+	// { label: 'About', href: '/#about', section: 'about' },
+	{ label: 'Products', href: '/#products', section: 'products' },
+];
 ---
 
-<header class="fixed inset-x-0 top-0 z-50 px-6 py-5 md:px-8">
-	<nav class="flex items-center justify-between gap-4">
-		<!-- Left pill: logo + links (dark liquid glass) -->
-		<div class="flex flex-1 items-center gap-6 rounded-full border border-white/10 bg-black/40 px-6 py-3 shadow-lg backdrop-blur-xl md:flex-none">
-			<a href="#" class="flex items-center gap-2 pr-2">
-				<img src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-6 w-6" />
-				<span class="text-sm font-bold tracking-tight text-white">ASHISH ENGINEERING WORKS</span>
-			</a>
-			<ul class="hidden items-center gap-6 text-sm text-white/80 md:flex">
-				<li><a href="#" class="transition-colors hover:text-white">Home</a></li>
-				<li>
-					<a href="#" class="flex items-center gap-1 transition-colors hover:text-white">
-						Products
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5">
-							<path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-						</svg>
+<div data-navbar-root data-theme={theme}>
+	<!-- Scroll progress indicator -->
+	<div class="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px] bg-transparent">
+		<div data-scroll-progress class="h-full w-0"></div>
+	</div>
+
+	<header class="fixed inset-x-0 top-0 z-50 px-4 py-5 sm:px-6 md:px-8">
+		<nav class="flex items-center justify-between gap-4">
+			<!-- Left pill: logo, wordmark, primary links -->
+			<div
+				data-navbar-pill
+				class="flex flex-1 items-center gap-3 rounded-full border px-4 py-3 shadow-lg backdrop-blur-xl transition-colors duration-300 sm:gap-6 sm:px-6 md:flex-none"
+			>
+				<a href="/#top" data-nav-link="home" class="flex items-center gap-2 pr-2">
+					<img data-navbar-logo src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-6 w-6 shrink-0" />
+					<span data-navbar-wordmark class="whitespace-nowrap text-xs font-bold tracking-tight sm:text-sm"
+						>ASHISH ENGINEERING WORKS</span
+					>
+				</a>
+				<ul class="hidden items-center gap-6 text-sm md:flex">
+					{
+						navLinks.map((link) => (
+							<li>
+								<a href={link.href} data-nav-link={link.section} class="nav-link transition-colors">
+									{link.label}
+								</a>
+							</li>
+						))
+					}
+					<li><a href="#" data-quote-open data-nav-link="contact" class="nav-link transition-colors">Contact Us</a></li>
+				</ul>
+			</div>
+
+			<!-- Right: Get a quote + hamburger (mobile) -->
+			<div class="flex items-center gap-3">
+				<a
+					href="#"
+					data-quote-open
+					data-navbar-cta
+					class="hidden h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold shadow-sm backdrop-blur-sm transition-colors md:flex"
+				>
+					Get a Quote
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+						<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</a>
+				<button
+					type="button"
+					data-menu-toggle
+					data-navbar-fab
+					aria-label="Menu"
+					aria-expanded="false"
+					aria-controls="mobile-menu"
+					class="relative flex h-12 w-12 items-center justify-center rounded-full shadow-sm backdrop-blur-sm transition-colors md:hidden"
+				>
+					<span class="relative flex h-5 w-6 flex-col items-center justify-between" aria-hidden="true">
+						<span data-menu-bar="top" class="h-0.5 w-full rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+						<span data-menu-bar="mid" class="h-0.5 w-full rounded-full bg-current transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+						<span data-menu-bar="bottom" class="h-0.5 w-full rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+					</span>
+				</button>
+			</div>
+		</nav>
+	</header>
+
+	<!-- Mobile menu overlay: always dark glass, same as other overlays on the site -->
+	<div
+		id="mobile-menu"
+		class="fixed inset-0 z-40 hidden items-start justify-center px-6 pt-24 pb-10 md:hidden"
+		aria-hidden="true"
+	>
+		<div data-menu-close data-menu-backdrop class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+		<div data-menu-panel class="relative z-10 max-h-[80vh] w-full overflow-y-auto rounded-3xl border border-white/10 bg-black/60 p-6 shadow-2xl backdrop-blur-xl">
+			<ul class="flex flex-col divide-y divide-white/10 text-base text-white/80">
+				{
+					navLinks.map((link, i) => (
+						<li data-menu-item style={`--menu-item-delay: ${i * 45}ms`}>
+							<a href={link.href} data-menu-close class="flex items-center justify-between py-4 transition-colors hover:text-white">
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+				<li data-menu-item style={`--menu-item-delay: ${navLinks.length * 45}ms`}>
+					<a href="#" data-quote-open data-menu-close class="flex items-center justify-between py-4 transition-colors hover:text-white">
+						Contact Us
 					</a>
 				</li>
-				<li><a href="#" class="transition-colors hover:text-white">Applications</a></li>
-				<li><a href="#" class="transition-colors hover:text-white">Contact Us</a></li>
 			</ul>
-		</div>
 
-		<!-- Right: Get a quote + hamburger (mobile) -->
-		<div class="flex items-center gap-3">
 			<a
 				href="#"
 				data-quote-open
-				class="hidden h-12 items-center justify-center gap-2 rounded-full bg-white/95 px-6 text-sm font-semibold text-black shadow-sm backdrop-blur-sm transition hover:bg-white md:flex"
+				data-menu-close
+				data-menu-item
+				style={`--menu-item-delay: ${(navLinks.length + 1) * 45}ms`}
+				class="mt-6 flex h-12 items-center justify-center gap-2 rounded-full bg-white/95 px-6 text-sm font-semibold text-black shadow-sm transition hover:bg-white"
 			>
 				Get a Quote
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
 					<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
 				</svg>
 			</a>
-			<button
-				aria-label="Menu"
-				class="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-black shadow-sm backdrop-blur-sm transition hover:bg-white md:hidden"
-			>
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
-					<path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
-				</svg>
-			</button>
 		</div>
-	</nav>
-</header>
+	</div>
+</div>
+
+<style>
+	/* Theme is driven by two data attributes on the root, set from scroll position in script
+	   below: data-theme (dark|light) mirrors the section currently behind the fixed header,
+	   data-section (home|about|products) drives the active-link indicator. Defaults below are
+	   the dark theme; [data-theme="light"] overrides give the light variant. */
+
+	[data-scroll-progress] {
+		height: 100%;
+		background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.35));
+	}
+	[data-navbar-root][data-theme='light'] [data-scroll-progress] {
+		background-image: linear-gradient(to right, rgba(10, 10, 10, 1), rgba(10, 10, 10, 0.35));
+	}
+
+	[data-navbar-pill] {
+		border-color: rgba(255, 255, 255, 0.1);
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-pill] {
+		border-color: rgba(0, 0, 0, 0.08);
+	}
+
+	[data-navbar-logo] {
+		transition: filter 300ms ease;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-logo] {
+		filter: invert(1);
+	}
+
+	[data-navbar-wordmark] {
+		color: #fff;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-wordmark] {
+		color: #0a0a0a;
+	}
+
+	.nav-link {
+		color: rgba(255, 255, 255, 0.75);
+	}
+	.nav-link:hover {
+		color: #fff;
+	}
+	[data-navbar-root][data-theme='light'] .nav-link {
+		color: rgba(0, 0, 0, 0.6);
+	}
+	[data-navbar-root][data-theme='light'] .nav-link:hover {
+		color: #000;
+	}
+
+	/* Active-section indicator */
+	[data-section='home'] [data-nav-link='home'],
+	[data-section='about'] [data-nav-link='about'],
+	[data-section='products'] [data-nav-link='products'] {
+		color: #fff;
+		font-weight: 600;
+	}
+	[data-navbar-root][data-theme='light'][data-section='home'] [data-nav-link='home'],
+	[data-navbar-root][data-theme='light'][data-section='about'] [data-nav-link='about'],
+	[data-navbar-root][data-theme='light'][data-section='products'] [data-nav-link='products'] {
+		color: #000;
+	}
+
+	[data-navbar-cta],
+	[data-navbar-fab] {
+		background-color: rgba(255, 255, 255, 0.95);
+		color: #000;
+	}
+	[data-navbar-cta]:hover,
+	[data-navbar-fab]:hover {
+		background-color: #fff;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-cta],
+	[data-navbar-root][data-theme='light'] [data-navbar-fab] {
+		background-color: rgba(10, 10, 10, 0.92);
+		color: #fff;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-cta]:hover,
+	[data-navbar-root][data-theme='light'] [data-navbar-fab]:hover {
+		background-color: #000;
+	}
+
+	/* Hamburger <-> X morph, driven by the button's own aria-expanded state. */
+	[data-menu-toggle][aria-expanded='true'] [data-menu-bar='top'] {
+		transform: translateY(9px) rotate(45deg);
+	}
+	[data-menu-toggle][aria-expanded='true'] [data-menu-bar='mid'] {
+		opacity: 0;
+		transform: scaleX(0);
+	}
+	[data-menu-toggle][aria-expanded='true'] [data-menu-bar='bottom'] {
+		transform: translateY(-9px) rotate(-45deg);
+	}
+
+	/* Mobile menu entrance: backdrop fades, panel slides up, items cascade in with a
+	   per-item delay set inline via --menu-item-delay. Driven off aria-hidden so the
+	   element must already be display:flex (JS toggles that a frame earlier) for the
+	   transition to run instead of snapping straight to the open state. */
+	[data-menu-backdrop] {
+		opacity: 0;
+		transition: opacity 300ms ease-out;
+	}
+	#mobile-menu[aria-hidden='false'] [data-menu-backdrop] {
+		opacity: 1;
+	}
+
+	[data-menu-panel] {
+		opacity: 0;
+		transform: translateY(20px) scale(0.98);
+		transition:
+			opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	#mobile-menu[aria-hidden='false'] [data-menu-panel] {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+
+	[data-menu-item] {
+		opacity: 0;
+		transform: translateY(8px);
+		transition:
+			opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition-delay: var(--menu-item-delay, 0ms);
+	}
+	#mobile-menu[aria-hidden='false'] [data-menu-item] {
+		opacity: 1;
+		transform: translateY(0);
+	}
+</style>
+
+<script>
+	const menu = document.getElementById('mobile-menu');
+	const toggle = document.querySelector('[data-menu-toggle]');
+
+	const MENU_ANIMATION_MS = 450;
+	let menuCloseTimeout: ReturnType<typeof setTimeout> | undefined;
+	let menuOpenRaf: number | undefined;
+
+	const openMenu = () => {
+		clearTimeout(menuCloseTimeout);
+		if (menuOpenRaf !== undefined) cancelAnimationFrame(menuOpenRaf);
+		menu?.classList.remove('hidden');
+		menu?.classList.add('flex');
+		toggle?.setAttribute('aria-expanded', 'true');
+		document.body.style.overflow = 'hidden';
+
+		// Force a frame at aria-hidden="true" (still display:flex) before flipping it,
+		// so the backdrop/panel/item transitions animate from their closed state
+		// instead of snapping straight to open. Guarded by menuOpenRaf so a close that
+		// lands before this frame fires can cancel it — otherwise this stale callback
+		// re-opens the menu's CSS state right after closeMenu just closed it.
+		menuOpenRaf = requestAnimationFrame(() => {
+			menuOpenRaf = undefined;
+			menu?.setAttribute('aria-hidden', 'false');
+		});
+	};
+
+	const closeMenu = () => {
+		if (menuOpenRaf !== undefined) {
+			cancelAnimationFrame(menuOpenRaf);
+			menuOpenRaf = undefined;
+		}
+		menu?.setAttribute('aria-hidden', 'true');
+		toggle?.setAttribute('aria-expanded', 'false');
+		document.body.style.overflow = '';
+
+		menuCloseTimeout = setTimeout(() => {
+			menu?.classList.add('hidden');
+			menu?.classList.remove('flex');
+		}, MENU_ANIMATION_MS);
+	};
+
+	toggle?.addEventListener('click', () => {
+		if (menu?.classList.contains('hidden')) openMenu();
+		else closeMenu();
+	});
+
+	menu?.querySelectorAll('[data-menu-close]').forEach((el) => {
+		el.addEventListener('click', closeMenu);
+	});
+
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && !menu?.classList.contains('hidden')) closeMenu();
+	});
+
+	// Theme + active-section detection: whichever [data-navbar-theme] zone's top edge has
+	// scrolled above the header currently "owns" the navbar's look. Sections opt in by
+	// tagging themselves with data-navbar-theme="dark|light" and, for nav links, a matching
+	// data-nav-section. Pages with no such zones (e.g. a plain product page) keep whatever
+	// theme was rendered server-side via the `theme` prop.
+	const root = document.querySelector<HTMLElement>('[data-navbar-root]');
+	const pill = document.querySelector<HTMLElement>('[data-navbar-pill]');
+	const progress = document.querySelector<HTMLElement>('[data-scroll-progress]');
+	const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-navbar-theme]'));
+	const initialTheme = root?.dataset.theme === 'light' ? 'light' : 'dark';
+
+	const PROBE_Y = 72;
+	const SOLIDIFY_OVER = 160;
+	let ticking = false;
+
+	const activeZone = () => {
+		if (!zones.length) return null;
+		let active = zones[0];
+		for (const el of zones) {
+			if (el.getBoundingClientRect().top <= PROBE_Y) active = el;
+		}
+		return active;
+	};
+
+	const update = () => {
+		const zone = activeZone();
+		const theme = zone?.dataset.navbarTheme === 'light' ? 'light' : zone ? 'dark' : initialTheme;
+		const section = zone?.dataset.navSection;
+
+		if (root) {
+			root.dataset.theme = theme;
+			if (section) root.dataset.section = section;
+			else delete root.dataset.section;
+		}
+
+		const y = window.scrollY;
+		const t = Math.min(1, y / SOLIDIFY_OVER);
+		const base = theme === 'light' ? '255, 255, 255' : '0, 0, 0';
+		if (pill) pill.style.backgroundColor = `rgba(${base}, ${(0.45 + t * 0.35).toFixed(2)})`;
+
+		if (progress) {
+			const max = document.documentElement.scrollHeight - window.innerHeight;
+			const pct = max > 0 ? Math.min(1, y / max) * 100 : 0;
+			progress.style.width = `${pct}%`;
+		}
+
+		ticking = false;
+	};
+
+	window.addEventListener(
+		'scroll',
+		() => {
+			if (!ticking) {
+				window.requestAnimationFrame(update);
+				ticking = true;
+			}
+		},
+		{ passive: true },
+	);
+
+	update();
+</script>

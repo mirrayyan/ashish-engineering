@@ -1,0 +1,45 @@
+---
+const stats = [
+	{ value: '15+', label: 'Years fabricating steel' },
+	{ value: '500+', label: 'Kitchens equipped' },
+	{ value: '304', label: 'Grade stainless steel' },
+	{ value: '100%', label: 'Custom sizing available' },
+];
+---
+
+<section
+	id="about"
+	class="scroll-mt-24 relative overflow-hidden bg-black px-6 py-16 text-white sm:py-20 md:px-12 md:py-24"
+	data-navbar-theme="dark"
+	data-nav-section="about"
+>
+	<!-- Ambient glow -->
+	<div
+		aria-hidden="true"
+		class="pointer-events-none absolute -top-40 right-0 h-96 w-[70%] rounded-full bg-white/5 blur-3xl"
+	>
+	</div>
+
+	<div class="relative mx-auto max-w-5xl">
+		<p class="text-xs font-semibold uppercase tracking-widest text-white/40">About Us</p>
+		<h2 class="mt-4 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
+			Built on the shop floor,<br />not in a boardroom.
+		</h2>
+		<p class="mt-6 max-w-xl text-base leading-relaxed text-white/60 md:text-lg">
+			Ashish Engineering Works fabricates stainless steel equipment for professional kitchens — from
+			high-pressure gas ranges to wash stations and food warmers. Every piece is welded, finished, and
+			inspected in-house, so what ships out holds up to years of daily service.
+		</p>
+
+		<div class="mt-10 grid grid-cols-2 gap-4 sm:mt-12 sm:grid-cols-4">
+			{
+				stats.map((stat) => (
+					<div class="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-6">
+						<p class="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">{stat.value}</p>
+						<p class="mt-2 text-sm leading-snug text-white/50">{stat.label}</p>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>

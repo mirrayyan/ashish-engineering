@@ -1,0 +1,107 @@
+---
+const testimonials = [
+	{
+		quote: "I've grown my audience faster here than on any other social platform I've tried.",
+		name: 'Michael Grant',
+		company: 'SocialLift',
+		color: 'bg-neutral-300 text-neutral-700',
+	},
+	{
+		quote: "It's not just about followers—it's about building a real community that supports each other.",
+		name: 'Emma Rodriguez',
+		company: 'SocialLift',
+		color: 'bg-rose-200 text-rose-800',
+	},
+	{
+		quote: 'User-friendly, engaging, and built for growth. Every connection I make here is meaningful.',
+		name: 'David Kim',
+		company: 'SocialLift',
+		color: 'bg-neutral-400 text-neutral-800',
+	},
+	{
+		quote: "It's not just about followers—it's about building a real community that supports each other.",
+		name: 'Emma Rodriguez',
+		company: 'SocialLift',
+		color: 'bg-rose-200 text-rose-800',
+	},
+];
+
+const initials = (name: string) =>
+	name
+		.split(' ')
+		.map((part) => part[0])
+		.join('');
+
+const columns = [
+	[testimonials[0], testimonials[2]],
+	[testimonials[1], testimonials[3]],
+];
+
+const logos = ['logoipsum', 'Logoipsum', 'Logoipsum'];
+---
+
+<section id="testimonials" class="scroll-mt-24 bg-neutral-50 px-6 py-20 md:px-12 md:py-24" data-navbar-theme="light">
+	<div class="grid max-w-6xl gap-12 lg:grid-cols-[380px_1fr] lg:gap-16">
+		<!-- Left: heading + CTA -->
+		<div class="flex flex-col items-start">
+			<h2 class="text-4xl font-bold leading-[1.1] tracking-tight text-neutral-900 md:text-5xl">
+				Trusted by industry<br />experts worldwide!
+			</h2>
+			<p class="mt-5 max-w-[280px] text-base leading-relaxed text-neutral-500">
+				Our clients' stories highlight the passion and creativity in every project.
+			</p>
+			<a
+				href="#"
+				data-quote-open
+				class="mt-7 flex h-11 items-center justify-center rounded-full bg-neutral-900 px-6 text-sm font-semibold text-white transition hover:bg-neutral-800"
+			>
+				Contact Sales
+			</a>
+
+			<div class="mt-16">
+				<p class="text-sm text-neutral-400">
+					Featured in <span class="font-semibold text-neutral-600">Top Companies:</span>
+				</p>
+				<div class="mt-4 flex flex-wrap items-center gap-6">
+					{
+						logos.map((logo) => (
+							<span class="flex items-center gap-1.5 text-neutral-400">
+								<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+									<circle cx="10" cy="10" r="8" />
+									<path d="M10 2a8 8 0 0 1 0 16z" fill="currentColor" stroke="none" />
+								</svg>
+								<span class="text-lg font-medium tracking-tight">{logo}</span>
+							</span>
+						))
+					}
+				</div>
+			</div>
+		</div>
+
+		<!-- Right: staggered testimonial grid -->
+		<div class="grid gap-6 sm:grid-cols-2">
+			{
+				columns.map((col, colIndex) => (
+					<div class:list={['flex flex-col gap-6', colIndex === 1 && 'sm:mt-6']}>
+						{col.map((t) => (
+							<div class="rounded-2xl border border-neutral-200 bg-neutral-100 p-1.5">
+								<div class="rounded-xl bg-white p-5 shadow-md shadow-neutral-300/40">
+									<p class="text-base leading-relaxed text-neutral-700">"{t.quote}"</p>
+								</div>
+								<div class="flex items-center gap-3 px-4 py-4">
+									<div class={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${t.color}`}>
+										{initials(t.name)}
+									</div>
+									<div>
+										<p class="text-sm font-semibold text-neutral-900">{t.name}</p>
+										<p class="text-sm text-neutral-500">{t.company}</p>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>

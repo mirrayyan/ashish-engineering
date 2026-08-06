@@ -2,7 +2,9 @@
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
+// import About from '../components/About.astro';
 import Products from '../components/Products.astro';
+import Testimonials from '../components/Testimonials.astro';
 import QuoteForm from '../components/QuoteForm.astro';
 import Footer from '../components/Footer.astro';
 ---
@@ -10,16 +12,29 @@ import Footer from '../components/Footer.astro';
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href="/AEW-SVG.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Ferox — Precision Tools</title>
+		<meta
+			name="description"
+			content="Ashish Engineering Works — precision stainless steel fabrication and industrial kitchen equipment: gas ranges, sinks, work tables, and food warmers built for professional kitchens."
+		/>
+		<meta name="theme-color" content="#000000" />
+		<meta property="og:title" content="Ashish Engineering Works" />
+		<meta
+			property="og:description"
+			content="Precision stainless steel fabrication and industrial kitchen equipment for professional kitchens."
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="/hero-factory.webp" />
+		<title>Ashish Engineering Works</title>
 	</head>
-	<body class="bg-black">
+	<body id="top" class="bg-black">
 		<Navbar />
 		<Hero />
+		<!-- <About /> -->
 		<Products />
+		<Testimonials />
 		<Footer />
 		<QuoteForm />
 	</body>

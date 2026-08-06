@@ -1,10 +1,19 @@
 ---
-const productLinks = ['Chinese Gas Range', 'Dosa Bhatti', 'Work Table with Sink', 'Bain Marie'];
-const companyLinks = ['Home', 'Products', 'Applications', 'Contact Us'];
+import { products } from '../data/products.js';
+
+const featuredSlugs = ['chinese-gas-range', 'dosa-bhatti', 'work-table-with-sink', 'bain-marie'];
+const productLinks = featuredSlugs
+	.map((slug) => products.find((product) => product.slug === slug))
+	.filter(Boolean);
+const companyLinks = [
+	{ label: 'Home', href: '/#top' },
+	{ label: 'Products', href: '/#products' },
+	{ label: 'Contact Us', href: '#', quoteOpen: true },
+];
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative overflow-hidden bg-black px-6 pt-20 pb-10 text-white md:px-12 md:pt-28">
+<footer class="relative overflow-hidden bg-black px-6 pt-20 pb-10 text-white md:px-12 md:pt-28" data-navbar-theme="dark">
 	<!-- Ambient glow -->
 	<div
 		aria-hidden="true"
@@ -14,7 +23,7 @@ const year = new Date().getFullYear();
 
 	<!-- Big CTA -->
 	<div class="relative flex flex-col items-start justify-between gap-8 border-b border-white/10 pb-16 md:flex-row md:items-end">
-		<h2 class="max-w-2xl text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl">
+		<h2 class="max-w-2xl text-4xl font-semibold leading-[0.95] tracking-tight sm:text-5xl md:text-7xl">
 			Let's build<br />something precise.
 		</h2>
 		<a
@@ -32,7 +41,7 @@ const year = new Date().getFullYear();
 	<!-- Link grid -->
 	<div class="relative grid grid-cols-2 gap-10 py-16 md:grid-cols-4">
 		<div class="col-span-2 flex flex-col items-start gap-4 md:col-span-1">
-			<a href="#" class="flex items-center gap-2">
+			<a href="/#top" class="flex items-center gap-2">
 				<img src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-7 w-7" />
 				<span class="text-sm font-bold tracking-tight">ASHISH ENGINEERING WORKS</span>
 			</a>
@@ -44,8 +53,8 @@ const year = new Date().getFullYear();
 		<div>
 			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Products</h3>
 			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
-				{productLinks.map((link) => (
-					<li><a href="#" class="transition-colors hover:text-white">{link}</a></li>
+				{productLinks.map((product) => (
+					<li><a href={`/products/${product.slug}`} class="transition-colors hover:text-white">{product.title}</a></li>
 				))}
 			</ul>
 		</div>
@@ -54,7 +63,7 @@ const year = new Date().getFullYear();
 			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Company</h3>
 			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
 				{companyLinks.map((link) => (
-					<li><a href="#" class="transition-colors hover:text-white">{link}</a></li>
+					<li><a href={link.href} data-quote-open={link.quoteOpen || undefined} class="transition-colors hover:text-white">{link.label}</a></li>
 				))}
 			</ul>
 		</div>
