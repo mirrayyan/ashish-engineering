@@ -1,22 +1,5 @@
 export const products = [
 	{
-		slug: 'wall-mounted-sink',
-		title: 'Wall Mounted Sink',
-		images: ['/wall-mounted-sink.png', '/wall-mounted-sink.png', '/wall-mounted-sink.png', '/wall-mounted-sink.png'],
-		description: 'Multi-tap wash station',
-		longDescription:
-			'A space-saving wash station designed for busy kitchens where floor space is limited. Multiple taps allow several staff to wash hands or equipment at once without bottlenecking service.',
-		price: '₹22,000',
-		category: 'Sinks',
-		sku: 'AEW-ST-1121',
-		specs: [
-			{ label: 'Material', value: '304-grade stainless steel, matte polished.' },
-			{ label: 'Design', value: 'Wall-mounted basin with multiple tap points.' },
-			{ label: 'Size', value: 'Custom sizing available on request.' },
-			{ label: 'Packaging', value: 'Shipped fully assembled with corner protection.' },
-		],
-	},
-	{
 		slug: 'chinese-gas-range',
 		title: 'Chinese Gas Range',
 		images: ['/chinese-gas-range.png', '/chinese-gas-range.png', '/chinese-gas-range.png', '/chinese-gas-range.png'],
@@ -129,6 +112,23 @@ export const products = [
 			{ label: 'Material', value: 'Stainless steel body with a polished finish.' },
 			{ label: 'Design', value: 'Three taps, drip tray with drain, side tumbler holders and a lockable top lid.' },
 			{ label: 'Size', value: 'Custom capacity and tap count available on request.' },
+			{ label: 'Packaging', value: 'Shipped fully assembled with corner protection.' },
+		],
+	},
+	{
+		slug: 'wall-mounted-sink',
+		title: 'Wall Mounted Sink',
+		images: ['/wall-mounted-sink.png', '/wall-mounted-sink.png', '/wall-mounted-sink.png', '/wall-mounted-sink.png'],
+		description: 'Multi-tap wash station',
+		longDescription:
+			'A space-saving wash station designed for busy kitchens where floor space is limited. Multiple taps allow several staff to wash hands or equipment at once without bottlenecking service.',
+		price: '₹22,000',
+		category: 'Sinks',
+		sku: 'AEW-ST-1121',
+		specs: [
+			{ label: 'Material', value: '304-grade stainless steel, matte polished.' },
+			{ label: 'Design', value: 'Wall-mounted basin with multiple tap points.' },
+			{ label: 'Size', value: 'Custom sizing available on request.' },
 			{ label: 'Packaging', value: 'Shipped fully assembled with corner protection.' },
 		],
 	},
