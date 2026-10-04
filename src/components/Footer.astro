@@ -1,14 +1,12 @@
 ---
-import { products } from '../data/products.js';
+import ContactActions from './ContactActions.astro';
+import ContactIcon from './ContactIcon.astro';
+import { contact, telUrl, whatsappUrl, mailtoUrl } from '../data/contact.js';
 
-const featuredSlugs = ['chinese-gas-range', 'dosa-bhatti', 'work-table-with-sink', 'bain-marie'];
-const productLinks = featuredSlugs
-	.map((slug) => products.find((product) => product.slug === slug))
-	.filter(Boolean);
 const companyLinks = [
 	{ label: 'Home', href: '/#top' },
 	{ label: 'Products', href: '/#products' },
-	{ label: 'Contact Us', href: '#', quoteOpen: true },
+	{ label: 'Contact Us', href: '#contact' },
 ];
 const year = new Date().getFullYear();
 ---
@@ -23,23 +21,30 @@ const year = new Date().getFullYear();
 
 	<!-- Big CTA -->
 	<div class="relative flex flex-col items-start justify-between gap-8 border-b border-white/10 pb-16 md:flex-row md:items-end">
-		<h2 class="max-w-2xl text-4xl font-semibold leading-[0.95] tracking-tight sm:text-5xl md:text-7xl">
-			Let's build<br />something precise.
-		</h2>
-		<a
-			href="#"
-			data-quote-open
-			class="flex h-14 items-center justify-center gap-2 rounded-full bg-white/95 px-8 text-base font-semibold text-black transition hover:bg-white"
-		>
-			Get a Quote
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
-				<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-			</svg>
-		</a>
+		<div class="max-w-2xl">
+			<h2 class="text-4xl font-semibold leading-[0.95] tracking-tight sm:text-5xl md:text-7xl">
+				Tell us what you need.<br />We’ll build it.
+			</h2>
+			<p class="mt-6 max-w-md text-base leading-relaxed text-white/60 md:text-lg">
+				Send us your requirements on WhatsApp. Get a custom quote directly from our fabrication workshop.
+			</p>
+			<!-- Reasons to ask us rather than a dealer -->
+			<ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
+				{['25+ years in steel', 'Custom sizes', 'Made in our own workshop'].map((point) => (
+					<li class="flex items-center gap-2">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 text-[#25D366]" aria-hidden="true">
+							<path d="m5 12.5 4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+						{point}
+					</li>
+				))}
+			</ul>
+		</div>
+		<ContactActions tone="dark" size="lg" email class="w-full sm:w-auto sm:min-w-[22rem]" />
 	</div>
 
 	<!-- Link grid -->
-	<div class="relative grid grid-cols-2 gap-10 py-16 md:grid-cols-4">
+	<div class="relative grid grid-cols-2 gap-10 py-16 md:grid-cols-3">
 		<div class="col-span-2 flex flex-col items-start gap-4 md:col-span-1">
 			<a href="/#top" class="flex items-center gap-2">
 				<img src="/AEW-SVG.svg" alt="Ashish Engineering Works logo" class="h-7 w-7" />
@@ -51,46 +56,77 @@ const year = new Date().getFullYear();
 		</div>
 
 		<div>
-			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Products</h3>
-			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
-				{productLinks.map((product) => (
-					<li><a href={`/products/${product.slug}`} class="transition-colors hover:text-white">{product.title}</a></li>
-				))}
-			</ul>
-		</div>
-
-		<div>
 			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Company</h3>
 			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
 				{companyLinks.map((link) => (
-					<li><a href={link.href} data-quote-open={link.quoteOpen || undefined} class="transition-colors hover:text-white">{link.label}</a></li>
+					<li><a href={link.href} class="transition-colors hover:text-white">{link.label}</a></li>
 				))}
 			</ul>
 		</div>
 
-		<div>
+		<!-- Full width on phones so the email and address never squeeze into half a column.
+		     #contact is where every "Contact Us" link lands. -->
+		<div id="contact" class="col-span-2 scroll-mt-28 sm:col-span-1">
 			<h3 class="text-xs font-semibold uppercase tracking-widest text-white/40">Contact</h3>
-			<ul class="mt-5 flex flex-col gap-3 text-sm text-white/70">
-				<li><a href="mailto:hello@ashishengineering.com" class="transition-colors hover:text-white">hello@ashishengineering.com</a></li>
-				<li><a href="tel:+910000000000" class="transition-colors hover:text-white">+91 00000 00000</a></li>
-				<li class="text-white/50">Mumbai, India</li>
+			<ul class="mt-5 flex flex-col gap-4 text-sm text-white/70">
+				<li>
+					<a href={telUrl} class="flex items-start gap-3 transition-colors hover:text-white">
+						<ContactIcon name="phone" class="mt-0.5 h-4 w-4 text-white/40" />
+						<span class="whitespace-nowrap">{contact.phoneDisplay}</span>
+					</a>
+				</li>
+				<li>
+					<a
+						href={whatsappUrl()}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-start gap-3 transition-colors hover:text-white"
+					>
+						<ContactIcon name="whatsapp" class="mt-0.5 h-4 w-4 text-[#25D366]" />
+						<span>WhatsApp us</span>
+					</a>
+				</li>
+				<li>
+					<a href={mailtoUrl()} class="flex items-start gap-3 transition-colors hover:text-white">
+						<ContactIcon name="mail" class="mt-0.5 h-4 w-4 text-white/40" />
+						<span class="min-w-0 break-all">{contact.email}</span>
+					</a>
+				</li>
+				<li>
+					<a
+						href={contact.mapsUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-start gap-3 text-white/50 transition-colors hover:text-white"
+					>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="mt-0.5 h-4 w-4 shrink-0 text-white/40">
+							<path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z" stroke-linejoin="round" />
+							<circle cx="12" cy="10" r="2.5" />
+						</svg>
+						<address class="max-w-[16rem] not-italic leading-relaxed">{contact.address}</address>
+					</a>
+				</li>
 			</ul>
 		</div>
 	</div>
 
 	<!-- Bottom bar -->
-	<div class="relative flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-white/40 md:flex-row">
+	<div class="relative border-t border-white/10 pt-8 text-center text-sm text-white/40">
 		<p>© {year} Ashish Engineering Works. All rights reserved.</p>
-		<div class="flex items-center gap-6">
-			<a href="#" class="transition-colors hover:text-white">Privacy</a>
-			<a href="#" class="transition-colors hover:text-white">Terms</a>
-		</div>
 	</div>
 
 	<!-- Oversized brand watermark -->
 	<div aria-hidden="true" class="pointer-events-none relative mt-8 select-none overflow-hidden">
-		<span class="block whitespace-nowrap text-[22vw] font-semibold leading-[0.8] tracking-tighter text-white/[0.04]">
-			ASHISH
-		</span>
+		<!-- Gear mark + wordmark share one line; the em-based image height keeps them in scale at every width -->
+		<div class="flex items-end justify-center gap-[0.06em] whitespace-nowrap text-[18vw] font-semibold leading-[0.8] tracking-tighter">
+			<!-- Opacity + mask reproduce the wordmark's 12% → 5% → 0 fade -->
+			<img
+				src="/footer-gear.png"
+				alt=""
+				class="h-[0.8em] w-auto shrink-0 opacity-[0.12]"
+				style="mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.42), transparent); -webkit-mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.42), transparent);"
+			/>
+			<span class="bg-gradient-to-b from-white/[0.12] via-white/[0.05] to-transparent bg-clip-text pb-[0.05em] text-transparent">AEW</span>
+		</div>
 	</div>
 </footer>

@@ -2,7 +2,8 @@
 import '../../styles/global.css';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
-import QuoteForm from '../../components/QuoteForm.astro';
+import ContactActions from '../../components/ContactActions.astro';
+import FloatingContact from '../../components/FloatingContact.astro';
 import { products } from '../../data/products.js';
 
 export function getStaticPaths() {
@@ -43,15 +44,15 @@ const { product } = Astro.props;
 				Back to Products
 			</a>
 
-			<div class="mt-4 grid gap-x-12 gap-y-3 sm:mt-6 sm:gap-y-4 lg:mt-10 lg:gap-x-16 lg:gap-y-0 lg:grid-cols-[440px_1fr]">
+			<div class="mt-4 grid gap-x-12 gap-y-3 sm:mt-6 sm:gap-y-4 lg:mt-10 lg:gap-x-16 lg:gap-y-0 lg:grid-cols-[440px_1fr] lg:grid-rows-[auto_1fr]">
 				<!-- Gallery: leads on mobile, like a typical ecom product page -->
 				<div class="order-1 flex flex-col lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2">
-					<div class="flex h-60 items-center justify-center overflow-hidden rounded-2xl bg-[#f4f4f4] p-4 sm:h-80 sm:p-8 lg:h-auto lg:min-h-0 lg:flex-1">
+					<div class="flex h-60 items-center justify-center overflow-hidden rounded-2xl bg-[#f4f4f4] p-4 sm:h-80 sm:p-8 lg:aspect-[4/3] lg:h-auto">
 						<img
 							data-gallery-main
 							src={product.images[0]}
 							alt={product.title}
-							class="max-h-full max-w-full object-contain mix-blend-multiply"
+							class="h-full w-full object-contain mix-blend-multiply"
 						/>
 					</div>
 
@@ -71,7 +72,7 @@ const { product } = Astro.props;
 									<img
 										src={image}
 										alt={`${product.title} thumbnail ${i + 1}`}
-										class="max-h-full max-w-full object-contain mix-blend-multiply"
+										class="h-full w-full object-contain mix-blend-multiply"
 									/>
 								</button>
 							))
@@ -92,10 +93,9 @@ const { product } = Astro.props;
 					{product.title}
 				</h1>
 
-				<!-- Rest of the details: name, then price, then everything else -->
-				<div class="order-3 flex flex-col lg:order-none lg:col-start-1 lg:row-start-2">
+				<!-- Rest of the details: SKU, then everything else -->
+				<div class="order-3 flex flex-col lg:order-none lg:col-start-1 lg:row-start-2 lg:mt-4">
 					<p class="text-xs tracking-wide text-neutral-400">{product.sku}</p>
-					<p class="mt-1 text-2xl font-bold text-neutral-900 sm:mt-4 sm:text-4xl">{product.price}</p>
 
 					<p class="mt-6 text-sm uppercase leading-relaxed tracking-wide text-neutral-500">
 						{product.longDescription}
@@ -112,42 +112,27 @@ const { product } = Astro.props;
 						}
 					</dl>
 
-					<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-						<div class="flex h-12 w-fit items-center rounded-full border border-neutral-300">
-							<button
-								type="button"
-								data-qty-decrease
-								aria-label="Decrease quantity"
-								class="flex h-12 w-12 items-center justify-center text-lg text-neutral-700 transition hover:text-neutral-900"
-							>
-								−
-							</button>
-							<span data-qty-value class="w-6 text-center text-base font-medium text-neutral-900">1</span>
-							<button
-								type="button"
-								data-qty-increase
-								aria-label="Increase quantity"
-								class="flex h-12 w-12 items-center justify-center text-lg text-neutral-700 transition hover:text-neutral-900"
-							>
-								+
-							</button>
-						</div>
-
-						<a
-							href="#"
-							data-quote-open
-							data-quote-product={product.title}
-							class="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 text-sm font-semibold text-white transition hover:bg-neutral-800"
-						>
-							Get a Quote {product.price}
-						</a>
+					<div data-cta-inline class="mt-10">
+						<ContactActions product={product} email />
+						<p class="mt-4 text-xs text-neutral-400">Custom sizes available — share your requirements on WhatsApp.</p>
 					</div>
 				</div>
 			</div>
 		</main>
 
+		<!-- Mobile sticky CTA: keeps WhatsApp / Call in thumb reach while the inline one is off-screen -->
+		<div
+			data-cta-sticky
+			class="fixed inset-x-0 bottom-0 z-30 translate-y-full border-t border-neutral-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden"
+			aria-hidden="true"
+			inert
+		>
+			<p class="truncate text-sm font-semibold text-neutral-900">{product.title}</p>
+			<ContactActions product={product} size="sm" class="mt-2" />
+		</div>
+
 		<Footer />
-		<QuoteForm />
+		<FloatingContact />
 
 		<script>
 			const mainImage = document.querySelector<HTMLImageElement>('[data-gallery-main]');
@@ -173,18 +158,28 @@ const { product } = Astro.props;
 				});
 			});
 
-			const qtyValue = document.querySelector<HTMLElement>('[data-qty-value]');
-			let qty = 1;
+			// Sticky mobile CTA: shown whenever neither the inline CTA nor the footer (which has
+			// its own WhatsApp / Call buttons) is on screen.
+			const sticky = document.querySelector<HTMLElement>('[data-cta-sticky]');
+			const watched = [document.querySelector('[data-cta-inline]'), document.querySelector('footer')].filter(
+				(el): el is Element => el !== null,
+			);
+			const visible = new Set<Element>();
 
-			document.querySelector('[data-qty-decrease]')?.addEventListener('click', () => {
-				qty = Math.max(1, qty - 1);
-				if (qtyValue) qtyValue.textContent = String(qty);
-			});
-
-			document.querySelector('[data-qty-increase]')?.addEventListener('click', () => {
-				qty += 1;
-				if (qtyValue) qtyValue.textContent = String(qty);
-			});
+			if (sticky && watched.length) {
+				const observer = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) visible.add(entry.target);
+						else visible.delete(entry.target);
+					});
+					const show = visible.size === 0;
+					sticky.classList.toggle('translate-y-full', !show);
+					sticky.setAttribute('aria-hidden', String(!show));
+					sticky.inert = !show;
+				document.body.toggleAttribute('data-sticky-cta', show);
+				});
+				watched.forEach((el) => observer.observe(el));
+			}
 		</script>
 	</body>
 </html>

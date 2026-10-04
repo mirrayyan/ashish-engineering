@@ -1,0 +1,437 @@
+---
+/**
+ * Phone-only product quick view (Blinkit-style): tapping a product card grows the card into a sheet
+ * over the dimmed list, with a rail of the other products underneath. Animated with the native
+ * Web Animations API (no library), so it behaves the same in every browser. Desktop keeps normal page links.
+ */
+import ContactActions from './ContactActions.astro';
+import { products } from '../data/products.js';
+---
+
+<div
+	data-product-sheet
+	hidden
+	role="dialog"
+	aria-modal="true"
+	aria-label="Product details"
+	class="fixed inset-0 z-[70] md:hidden"
+>
+	<div data-sheet-backdrop class="absolute inset-0 bg-black/60"></div>
+
+	<div
+		data-sheet-panel
+		class="absolute inset-x-3 top-[max(0.75rem,env(safe-area-inset-top))] bottom-[calc(6.25rem+env(safe-area-inset-bottom))] flex flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+	>
+		<button
+			type="button"
+			data-sheet-close
+			aria-label="Close"
+			class="absolute left-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-neutral-900 shadow-sm backdrop-blur"
+		>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
+				<path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</button>
+
+		<div data-sheet-scroll class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+			{
+				products.map((product) => (
+					<article data-sheet-item={product.slug} hidden>
+						<div class="flex aspect-square items-center justify-center bg-[#f4f4f4] p-10">
+							<img
+								data-src={product.images[0]}
+								alt={product.title}
+								class="max-h-full max-w-full object-contain mix-blend-multiply"
+							/>
+						</div>
+						<div class="px-5 pb-6 pt-5">
+							<p class="text-xs tracking-wide text-neutral-400">{product.sku}</p>
+							<h2 class="mt-1 text-2xl font-bold tracking-tight text-neutral-900">{product.title}</h2>
+							<p class="mt-1 text-sm text-neutral-500">{product.description}</p>
+							<p class="mt-5 text-sm leading-relaxed text-neutral-600">{product.longDescription}</p>
+							<dl class="mt-6 grid grid-cols-[88px_1fr] gap-x-4 gap-y-3 text-xs uppercase tracking-wide">
+								{product.specs.map((spec) => (
+									<>
+										<dt class="text-neutral-400">{spec.label}:</dt>
+										<dd class="text-neutral-700">{spec.value}</dd>
+									</>
+								))}
+							</dl>
+							<a
+								href={`/products/${product.slug}`}
+								class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4"
+							>
+								View full details
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+									<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+								</svg>
+							</a>
+						</div>
+					</article>
+				))
+			}
+		</div>
+
+		{
+			products.map((product) => (
+				<div data-sheet-cta={product.slug} hidden class="shrink-0 border-t border-neutral-200 bg-white px-4 py-3">
+					<ContactActions product={product} size="sm" />
+				</div>
+			))
+		}
+	</div>
+
+	<!-- Product rail: tap a thumbnail (or swipe the sheet sideways) to flip between products -->
+	<div data-sheet-rail class="absolute inset-x-0 bottom-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+		<div
+			data-sheet-track
+			class="flex snap-x items-center gap-3 overflow-x-auto px-[calc(50%-2rem)] py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+		>
+			{
+				products.map((product) => (
+					<button
+						type="button"
+						data-sheet-thumb={product.slug}
+						aria-label={`Show ${product.title}`}
+						aria-current="false"
+						class="flex h-16 w-16 shrink-0 snap-center items-center justify-center overflow-hidden rounded-full bg-[#f4f4f4] p-2.5 opacity-60 ring-offset-2 ring-offset-transparent transition duration-300 aria-[current=true]:scale-110 aria-[current=true]:opacity-100 aria-[current=true]:ring-2 aria-[current=true]:ring-white"
+					>
+						<img src={product.images[0]} alt="" loading="lazy" class="max-h-full max-w-full object-contain mix-blend-multiply" />
+					</button>
+				))
+			}
+		</div>
+	</div>
+</div>
+
+<style>
+	/* The grow-from-card animation scales the panel from its top-left corner. */
+	[data-sheet-panel] {
+		transform-origin: 0 0;
+	}
+</style>
+
+<script>
+	const sheet = document.querySelector<HTMLElement>('[data-product-sheet]');
+	const panel = sheet?.querySelector<HTMLElement>('[data-sheet-panel]');
+	const scroller = sheet?.querySelector<HTMLElement>('[data-sheet-scroll]');
+	const backdrop = sheet?.querySelector<HTMLElement>('[data-sheet-backdrop]');
+	const rail = sheet?.querySelector<HTMLElement>('[data-sheet-rail]');
+	const track = sheet?.querySelector<HTMLElement>('[data-sheet-track]');
+	const closeButton = sheet?.querySelector<HTMLButtonElement>('[data-sheet-close]');
+
+	if (sheet && panel && scroller && backdrop && rail && track && closeButton) {
+		const mobile = window.matchMedia('(max-width: 767.98px)');
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+
+		type Entry = { item: HTMLElement; cta: HTMLElement; thumb: HTMLElement };
+		const entries = new Map<string, Entry>();
+		sheet.querySelectorAll<HTMLElement>('[data-sheet-item]').forEach((item) => {
+			const slug = item.dataset.sheetItem!;
+			entries.set(slug, {
+				item,
+				cta: sheet.querySelector<HTMLElement>(`[data-sheet-cta="${slug}"]`)!,
+				thumb: sheet.querySelector<HTMLElement>(`[data-sheet-thumb="${slug}"]`)!,
+			});
+		});
+
+		const cards = () => [...document.querySelectorAll<HTMLElement>('[data-product-card]')];
+		const cardFor = (slug: string) => document.querySelector<HTMLElement>(`[data-product-card="${slug}"]`);
+		const mediaFor = (slug: string) => cardFor(slug)?.querySelector<HTMLElement>('[data-card-media]') ?? null;
+		const inView = (el: HTMLElement) => {
+			const r = el.getBoundingClientRect();
+			return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+		};
+
+		let current: string | null = null;
+		let order: string[] = [];
+		let isOpen = false;
+		let busy = false;
+
+		// Sheet images load on demand; wait (briefly) for the one we're about to show so the morph never lands on a blank box.
+		const ready = async (slug: string) => {
+			const img = entries.get(slug)?.item.querySelector<HTMLImageElement>('img[data-src]');
+			if (!img) return;
+			if (!img.getAttribute('src')) img.src = img.dataset.src!;
+			await Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, 400))]);
+		};
+
+		const show = (slug: string) => {
+			entries.forEach((entry, s) => {
+				const on = s === slug;
+				entry.item.hidden = !on;
+				entry.cta.hidden = !on;
+				entry.thumb.setAttribute('aria-current', String(on));
+			});
+			current = slug;
+			scroller.scrollTop = 0;
+		};
+
+		const centerThumb = (slug: string, smooth: boolean) => {
+			const thumb = entries.get(slug)?.thumb;
+			if (!thumb) return;
+			track.scrollTo({
+				left: thumb.offsetLeft - (track.clientWidth - thumb.offsetWidth) / 2,
+				behavior: smooth ? 'smooth' : 'instant',
+			});
+		};
+
+		const lock = (on: boolean) => {
+			document.body.style.overflow = on ? 'hidden' : '';
+			document.body.toggleAttribute('data-product-sheet-open', on);
+		};
+
+		const SHEET_RADIUS = 24;
+		const CARD_RADIUS = 16;
+		const fullShape = { transform: 'none', clipPath: `inset(0px 0px 0px 0px round ${SHEET_RADIUS}px)` };
+
+		// The panel shape that sits exactly over a card's image box: scaled down to the card's width from the
+		// top-left, and clipped to the card's height. The sheet's image box is square like the card's, so the
+		// product image lines up and the sheet looks like the card itself growing.
+		const cardShape = (media: HTMLElement) => {
+			const card = media.getBoundingClientRect();
+			const dragged = panel.style.transform;
+			panel.style.transform = '';
+			const sheetBox = panel.getBoundingClientRect();
+			panel.style.transform = dragged;
+			const scale = card.width / sheetBox.width;
+			const hiddenBelow = Math.max(0, sheetBox.height - card.height / scale);
+			return {
+				transform: `translate(${card.left - sheetBox.left}px, ${card.top - sheetBox.top}px) scale(${scale})`,
+				clipPath: `inset(0px 0px ${hiddenBelow}px 0px round ${CARD_RADIUS / scale}px)`,
+			};
+		};
+
+		const fade = (el: HTMLElement, from: number, to: number, duration: number) =>
+			el.animate([{ opacity: from }, { opacity: to }], { duration, easing: 'ease', fill: 'forwards' });
+
+		const open = async (slug: string, push = true) => {
+			if (isOpen || busy || !entries.has(slug)) return;
+			busy = true;
+
+			// The rail follows whatever the filter pills are currently showing.
+			order = cards()
+				.filter((card) => card.style.display !== 'none')
+				.map((card) => card.dataset.productCard!);
+			if (!order.includes(slug)) order.push(slug);
+			entries.forEach((entry, s) => (entry.thumb.hidden = !order.includes(s)));
+
+			show(slug);
+			await ready(slug);
+			if (push) history.pushState({ productSheet: slug }, '', `/products/${slug}`);
+
+			sheet.hidden = false;
+			lock(true);
+			isOpen = true;
+			centerThumb(slug, false);
+
+			const media = mediaFor(slug);
+			const animations: Animation[] = [fade(backdrop, 0, 1, 350)];
+			if (reduceMotion.matches) {
+				animations.push(fade(panel, 0, 1, 200), fade(rail, 0, 1, 200));
+			} else {
+				const from = media && inView(media) ? cardShape(media) : { transform: 'translateY(110%)', clipPath: fullShape.clipPath };
+				// Hide the real card while its stand-in grows out of it.
+				if (media) media.style.visibility = 'hidden';
+				animations.push(
+					panel.animate([from, fullShape], { duration: 520, easing: EASE }),
+					rail.animate([{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], {
+						duration: 480,
+						delay: 80,
+						easing: EASE,
+						fill: 'backwards',
+					}),
+				);
+			}
+			await Promise.all(animations.map((a) => a.finished));
+			animations.forEach((a) => a.cancel());
+			if (media) media.style.visibility = '';
+
+			closeButton.focus({ preventScroll: true });
+			busy = false;
+		};
+
+		const hide = () => {
+			sheet.hidden = true;
+			panel.style.transform = '';
+			backdrop.style.opacity = '';
+			lock(false);
+			isOpen = false;
+		};
+
+		const close = async (fromHistory = false) => {
+			if (!isOpen || busy) return;
+			// The sheet owns a history entry; step back off it and let popstate do the closing.
+			if (!fromHistory && history.state?.productSheet) {
+				history.back();
+				return;
+			}
+			busy = true;
+
+			const slug = current!;
+			const media = mediaFor(slug);
+			const animations: Animation[] = [fade(backdrop, Number(getComputedStyle(backdrop).opacity), 0, 320)];
+			if (reduceMotion.matches) {
+				animations.push(fade(panel, 1, 0, 200), fade(rail, 1, 0, 200));
+			} else {
+				// Shrink back into the card if it's on screen (it may not be after flipping through the rail); else slide away.
+				const intoCard = !!media && inView(media);
+				const to = intoCard ? cardShape(media) : { transform: 'translateY(110%)', clipPath: fullShape.clipPath };
+				const from = { transform: panel.style.transform || 'none', clipPath: fullShape.clipPath };
+				if (intoCard) {
+					media.style.visibility = 'hidden';
+					// Scrolled down to the text: rewind to the image while shrinking, so the sheet lands on the
+					// card's picture instead of squeezing the text into the frame.
+					const scrolled = scroller.scrollTop;
+					if (scrolled > 0) {
+						scroller.scrollTop = 0;
+						animations.push(
+							entries.get(slug)!.item.animate([{ transform: `translateY(${-scrolled}px)` }, { transform: 'none' }], {
+								duration: 440,
+								easing: EASE,
+								fill: 'forwards',
+							}),
+						);
+					}
+				}
+				animations.push(
+					panel.animate([from, to], { duration: 440, easing: EASE, fill: 'forwards' }),
+					rail.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(100%)', opacity: 0 }], {
+						duration: 260,
+						easing: 'ease-in',
+						fill: 'forwards',
+					}),
+				);
+			}
+			await Promise.all(animations.map((a) => a.finished));
+			hide();
+			animations.forEach((a) => a.cancel());
+			if (media) media.style.visibility = '';
+
+			cardFor(slug)?.querySelector('a')?.focus({ preventScroll: true });
+			busy = false;
+		};
+
+		const switchTo = (slug: string) => {
+			if (!isOpen || !current || slug === current || !entries.has(slug)) return;
+			const dir = order.indexOf(slug) > order.indexOf(current) ? 1 : -1;
+			show(slug);
+			ready(slug);
+			centerThumb(slug, true);
+			history.replaceState({ productSheet: slug }, '', `/products/${slug}`);
+			if (!reduceMotion.matches) {
+				entries.get(slug)!.item.animate(
+					[
+						{ opacity: 0, transform: `translateX(${dir * 32}px)` },
+						{ opacity: 1, transform: 'none' },
+					],
+					{ duration: 320, easing: EASE },
+				);
+			}
+		};
+
+		const step = (delta: number) => {
+			const next = order[order.indexOf(current!) + delta];
+			if (next) switchTo(next);
+		};
+
+		// Cards: on phones, open the sheet instead of navigating. Desktop and modified clicks behave as links.
+		document.querySelectorAll<HTMLAnchorElement>('[data-product-card] a').forEach((link) =>
+			link.addEventListener('click', (e) => {
+				if (!mobile.matches || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+				const slug = link.closest<HTMLElement>('[data-product-card]')?.dataset.productCard;
+				if (!slug || !entries.has(slug)) return;
+				e.preventDefault();
+				open(slug);
+			}),
+		);
+
+		closeButton.addEventListener('click', () => close());
+		backdrop.addEventListener('click', () => close());
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && isOpen) close();
+		});
+		entries.forEach((entry, slug) => entry.thumb.addEventListener('click', () => switchTo(slug)));
+
+		window.addEventListener('popstate', (e) => {
+			const slug = e.state?.productSheet;
+			if (slug && entries.has(slug) && mobile.matches) {
+				if (isOpen) switchTo(slug);
+				else open(slug, false);
+			} else if (isOpen) {
+				close(true);
+			}
+		});
+
+		// Rotated / resized past the phone breakpoint: drop the sheet without ceremony.
+		mobile.addEventListener('change', (e) => {
+			if (e.matches || !isOpen) return;
+			hide();
+			if (history.state?.productSheet) history.back();
+		});
+
+		// Gestures on the sheet: swipe sideways to flip products, pull down from the top to dismiss.
+		let startX = 0;
+		let startY = 0;
+		let dragY = 0;
+		let atTop = false;
+		let axis: 'x' | 'y' | 'none' | null = null;
+
+		const settle = () => {
+			if (axis === 'y' && dragY > 0) {
+				panel.animate([{ transform: panel.style.transform }, { transform: 'translateY(0)' }], { duration: 300, easing: EASE });
+				panel.style.transform = '';
+				backdrop.style.opacity = '';
+			}
+			axis = null;
+			dragY = 0;
+		};
+
+		panel.addEventListener(
+			'touchstart',
+			(e) => {
+				startX = e.touches[0].clientX;
+				startY = e.touches[0].clientY;
+				atTop = scroller.scrollTop <= 0;
+				axis = null;
+				dragY = 0;
+			},
+			{ passive: true },
+		);
+
+		panel.addEventListener(
+			'touchmove',
+			(e) => {
+				if (busy) return;
+				const dx = e.touches[0].clientX - startX;
+				const dy = e.touches[0].clientY - startY;
+				if (!axis) {
+					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+					axis = Math.abs(dx) > Math.abs(dy) ? 'x' : dy > 0 && atTop ? 'y' : 'none';
+				}
+				if (axis === 'y') {
+					e.preventDefault();
+					dragY = Math.max(0, dy);
+					panel.style.transform = `translateY(${dragY}px)`;
+					backdrop.style.opacity = String(1 - Math.min(dragY / 400, 0.6));
+				}
+			},
+			{ passive: false },
+		);
+
+		panel.addEventListener('touchend', (e) => {
+			const dx = e.changedTouches[0].clientX - startX;
+			if (axis === 'x' && Math.abs(dx) > 50) {
+				step(dx < 0 ? 1 : -1);
+				axis = null;
+			} else if (axis === 'y' && dragY > 120) {
+				axis = null;
+				close();
+			} else {
+				settle();
+			}
+		});
+		panel.addEventListener('touchcancel', settle);
+	}
+</script>

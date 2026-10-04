@@ -4,9 +4,10 @@ import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
 // import About from '../components/About.astro';
 import Products from '../components/Products.astro';
-import Testimonials from '../components/Testimonials.astro';
-import QuoteForm from '../components/QuoteForm.astro';
+// import Testimonials from '../components/Testimonials.astro';
 import Footer from '../components/Footer.astro';
+import FloatingContact from '../components/FloatingContact.astro';
+import ProductSheet from '../components/ProductSheet.astro';
 ---
 
 <html lang="en">
@@ -34,8 +35,9 @@ import Footer from '../components/Footer.astro';
 		<Hero />
 		<!-- <About /> -->
 		<Products />
-		<Testimonials />
+		<!-- <Testimonials /> -->
 		<Footer />
-		<QuoteForm />
+		<FloatingContact revealAt="products" />
+		<ProductSheet />
 	</body>
 </html>

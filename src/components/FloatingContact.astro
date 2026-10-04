@@ -1,0 +1,94 @@
+---
+import ContactIcon from './ContactIcon.astro';
+import { telUrl, whatsappUrl } from '../data/contact.js';
+
+interface Props {
+	/** Stay hidden until this element (by id) scrolls into view, e.g. keep the hero clean. */
+	revealAt?: string;
+}
+
+const { revealAt } = Astro.props;
+---
+
+<!-- Always-reachable WhatsApp + Call, stacked bottom-right. WhatsApp sits lowest (closest to the thumb). -->
+<div
+	data-floating-contact
+	data-reveal-at={revealAt}
+	data-hidden={revealAt ? '' : undefined}
+	class="fixed bottom-5 right-4 z-30 flex flex-col items-center gap-3 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8"
+>
+	<a
+		href={telUrl}
+		aria-label="Call us"
+		title="Call us"
+		class="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-neutral-800"
+	>
+		<ContactIcon name="phone" class="h-6 w-6" />
+	</a>
+	<a
+		href={whatsappUrl()}
+		target="_blank"
+		rel="noopener noreferrer"
+		aria-label="Chat on WhatsApp"
+		title="Chat on WhatsApp"
+		class="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:bg-[#1ebe5b]"
+	>
+		<ContactIcon name="whatsapp" class="h-7 w-7" />
+	</a>
+</div>
+
+<style>
+	/* Each button pops up from below with a slight overshoot; WhatsApp (bottom) leads, Call follows. */
+	[data-floating-contact] > a {
+		transition:
+			opacity 0.35s ease,
+			transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+			background-color 0.2s ease;
+	}
+	[data-floating-contact] > a:first-child {
+		transition-delay: 70ms;
+	}
+
+	/* Hidden: above the products section on the homepage, or while the product page's mobile sticky bar
+	   (which already has WhatsApp + Call) is showing,
+	   or while the phone product sheet is open. */
+	:global(body[data-sticky-cta]) [data-floating-contact],
+	:global(body[data-product-sheet-open]) [data-floating-contact],
+	[data-floating-contact][data-hidden] {
+		pointer-events: none;
+	}
+	:global(body[data-sticky-cta]) [data-floating-contact] > a,
+	:global(body[data-product-sheet-open]) [data-floating-contact] > a,
+	[data-floating-contact][data-hidden] > a {
+		opacity: 0;
+		transform: translateY(1.5rem) scale(0.6);
+		transition-delay: 0ms;
+	}
+</style>
+
+<script>
+	// Reveal once the target section's top is in the lower half of the viewport; hide again above it.
+	const floating = document.querySelector<HTMLElement>('[data-floating-contact][data-reveal-at]');
+	const revealTarget = floating?.dataset.revealAt ? document.getElementById(floating.dataset.revealAt) : null;
+
+	if (floating && revealTarget) {
+		let ticking = false;
+		const update = () => {
+			ticking = false;
+			const reached = revealTarget.getBoundingClientRect().top <= window.innerHeight * 0.5;
+			floating.toggleAttribute('data-hidden', !reached);
+		};
+		window.addEventListener(
+			'scroll',
+			() => {
+				if (!ticking) {
+					ticking = true;
+					requestAnimationFrame(update);
+				}
+			},
+			{ passive: true },
+		);
+		window.addEventListener('resize', update);
+		update();
+	}
+</script>

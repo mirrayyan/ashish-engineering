@@ -1,4 +1,8 @@
 ---
+import ContactActions from './ContactActions.astro';
+import ContactIcon from './ContactIcon.astro';
+import { telUrl, whatsappUrl } from '../data/contact.js';
+
 interface Props {
 	/** Theme to render on first paint, before scroll-based detection kicks in. */
 	theme?: 'dark' | 'light';
@@ -42,22 +46,29 @@ const navLinks = [
 							</li>
 						))
 					}
-					<li><a href="#" data-quote-open data-nav-link="contact" class="nav-link transition-colors">Contact Us</a></li>
+					<li><a href="#contact" data-nav-link="contact" class="nav-link transition-colors">Contact Us</a></li>
 				</ul>
 			</div>
 
-			<!-- Right: Get a quote + hamburger (mobile) -->
+			<!-- Right: WhatsApp + Call (desktop) + hamburger (mobile) -->
 			<div class="flex items-center gap-3">
 				<a
-					href="#"
-					data-quote-open
+					href={telUrl}
+					data-navbar-cta-outline
+					class="hidden h-12 items-center justify-center gap-2 rounded-full border px-5 text-sm font-semibold backdrop-blur-sm transition-colors md:flex"
+				>
+					<ContactIcon name="phone" class="h-4 w-4" />
+					Call Now
+				</a>
+				<a
+					href={whatsappUrl()}
+					target="_blank"
+					rel="noopener noreferrer"
 					data-navbar-cta
 					class="hidden h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold shadow-sm backdrop-blur-sm transition-colors md:flex"
 				>
-					Get a Quote
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
-						<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-					</svg>
+					<ContactIcon name="whatsapp" class="h-[1.15em] w-[1.15em] text-[#25D366]" />
+					WhatsApp
 				</a>
 				<button
 					type="button"
@@ -86,7 +97,7 @@ const navLinks = [
 	>
 		<div data-menu-close data-menu-backdrop class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
 
-		<div data-menu-panel class="relative z-10 max-h-[80vh] w-full overflow-y-auto rounded-3xl border border-white/10 bg-black/60 p-6 shadow-2xl backdrop-blur-xl">
+		<div data-menu-panel class="relative z-10 max-h-[80svh] w-full overflow-y-auto rounded-3xl border border-white/10 bg-black/60 p-6 shadow-2xl backdrop-blur-xl">
 			<ul class="flex flex-col divide-y divide-white/10 text-base text-white/80">
 				{
 					navLinks.map((link, i) => (
@@ -98,25 +109,15 @@ const navLinks = [
 					))
 				}
 				<li data-menu-item style={`--menu-item-delay: ${navLinks.length * 45}ms`}>
-					<a href="#" data-quote-open data-menu-close class="flex items-center justify-between py-4 transition-colors hover:text-white">
+					<a href="#contact" data-menu-close class="flex items-center justify-between py-4 transition-colors hover:text-white">
 						Contact Us
 					</a>
 				</li>
 			</ul>
 
-			<a
-				href="#"
-				data-quote-open
-				data-menu-close
-				data-menu-item
-				style={`--menu-item-delay: ${(navLinks.length + 1) * 45}ms`}
-				class="mt-6 flex h-12 items-center justify-center gap-2 rounded-full bg-white/95 px-6 text-sm font-semibold text-black shadow-sm transition hover:bg-white"
-			>
-				Get a Quote
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
-					<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-				</svg>
-			</a>
+			<div data-menu-item style={`--menu-item-delay: ${(navLinks.length + 1) * 45}ms`} class="mt-6">
+				<ContactActions tone="dark" email align="center" />
+			</div>
 		</div>
 	</div>
 </div>
@@ -199,6 +200,21 @@ const navLinks = [
 	[data-navbar-root][data-theme='light'] [data-navbar-cta]:hover,
 	[data-navbar-root][data-theme='light'] [data-navbar-fab]:hover {
 		background-color: #000;
+	}
+
+	[data-navbar-cta-outline] {
+		border-color: rgba(255, 255, 255, 0.4);
+		color: #fff;
+	}
+	[data-navbar-cta-outline]:hover {
+		border-color: #fff;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-cta-outline] {
+		border-color: rgba(10, 10, 10, 0.25);
+		color: #0a0a0a;
+	}
+	[data-navbar-root][data-theme='light'] [data-navbar-cta-outline]:hover {
+		border-color: #0a0a0a;
 	}
 
 	/* Hamburger <-> X morph, driven by the button's own aria-expanded state. */

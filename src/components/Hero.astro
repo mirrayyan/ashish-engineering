@@ -1,38 +1,285 @@
 ---
+import ContactIcon from './ContactIcon.astro';
+import { telUrl, whatsappUrl, mailtoUrl } from '../data/contact.js';
 ---
 
+<!-- Sticky so the products section slides up over it on scroll -->
 <section
-	class="relative h-screen w-full overflow-hidden bg-cover bg-center bg-no-repeat"
+	class="sticky top-0 z-0 h-svh w-full overflow-hidden bg-cover bg-center bg-no-repeat"
 	style="background-image: url('/hero-factory.webp');"
 	data-navbar-theme="dark"
 	data-nav-section="home"
 >
-	<!-- Overlay for readability -->
-	<div class="absolute inset-0 z-0 bg-gradient-to-t from-black/75 via-black/45 to-black/55"></div>
+	<!-- Overlay: an even tint, extra shade where the copy sits (centre on phones, bottom-left from md up),
+	     and a fade at the top so the navbar stays legible. -->
+	<div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
+		<div class="absolute inset-0 bg-black/50"></div>
+		<div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_50%,rgba(0,0,0,0.6),transparent)] md:hidden"></div>
+		<div class="absolute inset-0 hidden bg-gradient-to-tr from-black/85 via-black/35 to-transparent md:block"></div>
+		<div class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent"></div>
+	</div>
 
-	<!-- Hero copy -->
-	<div class="absolute inset-x-0 bottom-0 z-10 px-6 pb-16 md:px-12 md:pb-24">
-		<div class="flex max-w-2xl flex-col items-start text-left">
-			<h1 class="text-5xl font-semibold leading-[0.95] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl">
-				Precision in<br />every process
+	<!-- Hero copy: centred on phones, bottom-left from md up -->
+	<div class="absolute inset-x-0 bottom-0 top-0 z-10 flex items-center justify-center px-5 pb-16 pt-20 sm:px-8 md:top-auto md:block md:px-12 md:pb-24 md:pt-0">
+		<div class="flex max-w-2xl flex-col items-center text-center md:items-start md:text-left lg:max-w-4xl">
+			<h1 class="text-balance text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+				High-quality steel fabrication and industrial kitchen equipment.
 			</h1>
-			<p class="mt-8 max-w-md text-base leading-snug text-white/90 sm:text-lg md:text-xl">
-				Delivering high-quality steel fabrication and industrial kitchen equipment.
+			<p class="mt-5 max-w-md text-lg leading-relaxed text-white/90 lg:text-xl">
+				Trusted by professional kitchens<br />for over 25 years.
 			</p>
-			<div class="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-				<a
-					href="/#about"
-					class="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition hover:bg-white/90 sm:px-7 sm:py-3.5 sm:text-base"
+			<!-- Contact Us: one button that opens the three ways to reach us (below it on phones, to its right from md up) -->
+			<div data-hero-contact class="relative mt-9 md:mt-8">
+				<button
+					type="button"
+					data-hero-contact-toggle
+					aria-expanded="false"
+					aria-controls="hero-contact-menu"
+					class="relative z-10 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white/95 px-7 text-sm font-semibold text-black shadow-sm transition hover:bg-white sm:h-14 sm:text-base"
 				>
-					About Us
-				</a>
-				<a
-					href="/#products"
-					class="rounded-full border border-white/30 bg-white/5 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/15 sm:px-7 sm:py-3.5 sm:text-base"
+					Contact Us
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						class="h-4 w-4 rotate-180 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:rotate-90 [[aria-expanded=true]>&]:rotate-0 md:[[aria-expanded=true]>&]:-rotate-90"
+						aria-hidden="true"
+					>
+						<path d="m6 15 6-6 6 6" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</button>
+
+				<!-- The three ways to reach us, in a row that slides out sideways from the Contact Us button:
+				     below it and spreading out from its centre on phones, to its right from md up.
+				     --k is each pill's position left to right. -->
+				<div
+					id="hero-contact-menu"
+					data-hero-contact-menu
+					aria-hidden="true"
+					inert
+					class="pointer-events-none absolute left-1/2 top-full z-0 mt-3 flex -translate-x-1/2 gap-2 aria-[hidden=false]:pointer-events-auto md:left-full md:top-1/2 md:mt-0 md:ml-3 md:translate-x-0 md:-translate-y-1/2 md:gap-2.5"
 				>
-					Explore Our Company
-				</a>
+					<a
+						href={whatsappUrl()}
+						target="_blank"
+						rel="noopener noreferrer"
+						style="--k: 0"
+						class="flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold shadow-lg md:h-12 md:gap-2 md:px-5 bg-[#25D366] text-white hover:bg-[#1ebe5b]"
+					>
+						<ContactIcon name="whatsapp" class="h-[18px] w-[18px] shrink-0 md:h-5 md:w-5" />
+						WhatsApp
+					</a>
+					<a href={telUrl} style="--k: 1" class="flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold shadow-lg md:h-12 md:gap-2 md:px-5 bg-white text-black hover:bg-neutral-100">
+						<ContactIcon name="phone" class="h-[18px] w-[18px] shrink-0 md:h-5 md:w-5" />
+						Call
+					</a>
+					<a
+						href={mailtoUrl()}
+						style="--k: 2"
+						class="flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold shadow-lg md:h-12 md:gap-2 md:px-5 border border-white/20 bg-black/60 text-white backdrop-blur-md hover:bg-black/75"
+					>
+						<ContactIcon name="mail" class="h-[18px] w-[18px] shrink-0 md:h-5 md:w-5" />
+						Email
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>
+
+	<!-- Scroll cue: hints that the products sit just below; tapping it runs the same glide as scrolling -->
+	<a
+		href="#products"
+		data-hero-glide
+		class="absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-white/70 transition-colors hover:text-white"
+	>
+		<span class="text-[11px] font-medium uppercase tracking-[0.25em]">Our Products</span>
+		<span data-hero-cue class="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/5 backdrop-blur-sm">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+				<path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</span>
+	</a>
 </section>
+
+<style>
+	/* Gentle nudge downwards, paused briefly at the top of each loop. */
+	@keyframes hero-cue {
+		0%, 40%, 100% { transform: translateY(0); }
+		20% { transform: translateY(6px); }
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		[data-hero-cue] { animation: hero-cue 2s ease-in-out infinite; }
+	}
+
+	/* Contact pills start squeezed together, shrunk and transparent, then slide out sideways into the row.
+	   Phones: from the centre outwards (WhatsApp left, Email right).
+	   md and up: from behind the Contact Us button out to the right, WhatsApp first.
+	   Closing reverses the order. */
+	[data-hero-contact-menu] > a {
+		--from: translateX(calc((1 - var(--k)) * 6.25rem)) scale(0.5);
+		opacity: 0;
+		transform: var(--from);
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 1, 1),
+			opacity 0.2s ease,
+			background-color 0.2s ease;
+		transition-delay: calc((2 - var(--k)) * 40ms);
+	}
+	@media (min-width: 768px) {
+		[data-hero-contact-menu] > a {
+			--from: translateX(calc(-1 * (var(--k) * 7.5rem + 5rem))) scale(0.6);
+		}
+	}
+	[data-hero-contact-menu][aria-hidden='false'] > a {
+		opacity: 1;
+		transform: none;
+		transition:
+			transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1),
+			opacity 0.25s ease,
+			background-color 0.2s ease;
+		transition-delay: calc(var(--k) * 60ms);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		[data-hero-contact-menu] > a,
+		[data-hero-contact-menu][aria-hidden='false'] > a {
+			transform: none;
+		}
+	}
+</style>
+
+<script>
+	// Hero "Contact Us" popover: toggle on click, close on outside click or Escape.
+	const contactRoot = document.querySelector<HTMLElement>('[data-hero-contact]');
+	const contactToggle = contactRoot?.querySelector<HTMLButtonElement>('[data-hero-contact-toggle]');
+	const contactMenu = contactRoot?.querySelector<HTMLElement>('[data-hero-contact-menu]');
+
+	const setContactOpen = (open: boolean) => {
+		if (!contactToggle || !contactMenu) return;
+		contactToggle.setAttribute('aria-expanded', String(open));
+		contactMenu.setAttribute('aria-hidden', String(!open));
+		contactMenu.inert = !open;
+	};
+
+	contactToggle?.addEventListener('click', () => setContactOpen(contactToggle.getAttribute('aria-expanded') !== 'true'));
+	document.addEventListener('click', (e) => {
+		if (contactRoot && !contactRoot.contains(e.target as Node)) setContactOpen(false);
+	});
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') setContactOpen(false);
+	});
+	// Close it once the visitor moves on to the products.
+	window.addEventListener('scroll', () => window.scrollY > 40 && setContactOpen(false), { passive: true });
+
+	// Hero → Products glide: any downward scroll intent while the hero is on screen
+	// (wheel, trackpad, touch swipe, keyboard, or the "Explore" button) hands off to one
+	// eased, rAF-driven scroll that lands the products section flush with the top.
+	const products = document.getElementById('products');
+
+	if (products) {
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		// Exponential ease-in-out: soft start, fast middle, long gentle settle.
+		const ease = (t: number) =>
+			t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
+
+		let gliding = false;
+		let lastWheelAt = 0;
+		let swallowMomentum = false;
+
+		const targetY = () => products.getBoundingClientRect().top + window.scrollY;
+		// Only act while we're above the products section (i.e. some of the hero is still showing).
+		// Stand down while the mobile menu or contact modal has the page scroll-locked.
+		const inHeroZone = () => document.body.style.overflow !== 'hidden' && window.scrollY < targetY() - 2;
+
+		const glide = () => {
+			if (gliding) return;
+			const startY = window.scrollY;
+			const endY = targetY();
+			const distance = endY - startY;
+			if (distance <= 0) return;
+
+			if (reduceMotion) {
+				window.scrollTo({ top: endY, behavior: 'instant' });
+				return;
+			}
+
+			gliding = true;
+			// Longer trips take a little longer, but always feel quick.
+			const duration = Math.min(1100, Math.max(700, distance * 0.9));
+			const start = performance.now();
+			// The site's CSS smooth-scroll would fight per-frame scrollTo calls, so turn it off mid-glide.
+			const html = document.documentElement;
+			const prevBehavior = html.style.scrollBehavior;
+			html.style.scrollBehavior = 'auto';
+
+			const step = (now: number) => {
+				const t = Math.min(1, (now - start) / duration);
+				window.scrollTo(0, startY + distance * ease(t));
+				if (t < 1) {
+					requestAnimationFrame(step);
+				} else {
+					html.style.scrollBehavior = prevBehavior;
+					gliding = false;
+					// Trackpads keep firing inertial wheel events after the gesture; eat them
+					// until they stop so the page doesn't overshoot past the products heading.
+					swallowMomentum = performance.now() - lastWheelAt < 120;
+				}
+			};
+			requestAnimationFrame(step);
+		};
+
+		window.addEventListener(
+			'wheel',
+			(e) => {
+				const now = performance.now();
+				const gap = now - lastWheelAt;
+				lastWheelAt = now;
+
+				if (gliding) return e.preventDefault();
+				if (swallowMomentum) {
+					if (gap < 120) return e.preventDefault();
+					swallowMomentum = false;
+				}
+				if (e.deltaY > 0 && inHeroZone()) {
+					e.preventDefault();
+					glide();
+				}
+			},
+			{ passive: false },
+		);
+
+		let touchStartY = 0;
+		window.addEventListener('touchstart', (e) => (touchStartY = e.touches[0].clientY), { passive: true });
+		window.addEventListener(
+			'touchmove',
+			(e) => {
+				if (gliding) return e.preventDefault();
+				const swipedUp = touchStartY - e.touches[0].clientY > 8;
+				if (swipedUp && inHeroZone()) {
+					e.preventDefault();
+					glide();
+				}
+			},
+			{ passive: false },
+		);
+
+		window.addEventListener('keydown', (e) => {
+			const target = e.target as HTMLElement | null;
+			if (target?.closest('input, textarea, select, [contenteditable]')) return;
+			const down = ['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key) && !e.shiftKey;
+			if (gliding && down) return e.preventDefault();
+			if (down && inHeroZone()) {
+				e.preventDefault();
+				glide();
+			}
+		});
+
+		document.querySelectorAll<HTMLAnchorElement>('[data-hero-glide]').forEach((link) =>
+			link.addEventListener('click', (e) => {
+				if (!inHeroZone()) return;
+				e.preventDefault();
+				glide();
+			}),
+		);
+	}
+</script>
